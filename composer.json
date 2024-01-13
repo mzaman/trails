@@ -1,0 +1,56 @@
+{
+    "name": "mzaman/fingerprints",
+    "type": "library",
+    "description": "A simple registration attribution tracking solution for Laravel (UTM Parameters and Referrers)",
+    "keywords": [
+        "fingerprints",
+        "tracking",
+        "utm",
+        "utm parameters",
+        "user tracking",
+        "attribution tracking"
+    ],
+    "homepage": "https://github.com/mzaman/fingerprints",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Masud Zaman",
+            "email": "masud.zmn@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "illuminate/support": "^7.0|^8.0|^9.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.0",
+        "friendsofphp/php-cs-fixer": "^2.15"
+    },
+    "suggest": {
+        "jaybizzle/crawler-detect": "Needed if you plan to disable robots tracking"
+    },
+    "autoload": {
+        "psr-4": {
+            "MasudZaman\\Fingerprints\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MasudZaman\\Fingerprints\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        },
+        "laravel": {
+            "providers": [
+                "MasudZaman\\Fingerprints\\FingerprintsServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,287 @@
+# :feet: Fingerprints for (UTM and Referrer Tracking)
+
+![Fingerprints for Laravel (UTM and Referrer Tracking)](readme-header.jpg)
+
+[![Latest Version on Packagist][ico-version]][link-packagist]
+[![Software License][ico-license]](LICENSE.md)
+[![Build Status][ico-travis]][link-travis]
+[![Total Downloads][ico-downloads]][link-downloads]
+
+
+Fingerprints is a simple registration attribution tracking solution for Laravel 7+
+
+> “I know I waste half of my advertising dollars...I just wish I knew which half.” ~ *Henry Procter*.
+
+By tracking where user signups (or any other kind of registrations) originate from you can ensure that your marketing efforts are more focused.
+
+Fingerprints makes it easy to look back and see what lead to a user signing up. 
+
+## Install
+
+Via Composer
+
+``` bash
+$ composer require mzaman/fingerprints
+```
+
+Publish the config and migration files:
+
+``` php
+php artisan vendor:publish --provider="MasudZaman\Fingerprints\FingerprintsServiceProvider"
+```
+
+Add the `\MasudZaman\Fingerprints\Middleware\CaptureAttributionDataMiddleware::class` either to a group of routes that should be tracked or as a global middleware in `App\Http\Kernel.php` (after the `EncryptCookie` middleware!) like so:
+
+```php
+    /**
+     * The application's global HTTP middleware stack.
+     *
+     * These middleware are run during every request to your application.
+     *
+     * @var array
+     */
+    protected $middleware = [
+        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+        \App\Http\Middleware\EncryptCookies::class,
+        \MasudZaman\Fingerprints\Middleware\CaptureAttributionDataMiddleware::class, // <-- Added
+    ];
+```
+
+Add tracking to the model where registration should be tracked (usually the Eloquent model `\App\Models\User`) by implementing the `TrackableInterface` and using the `TrackRegistrationAttribution` trait like so:
+
+```php
+namespace App\Models;
+
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
+use MasudZaman\Fingerprints\TrackableInterface;
+use MasudZaman\Fingerprints\TrackRegistrationAttribution;
+
+class User extends Model implements TrackableInterface // <-- Added
+{
+    use Authenticatable;
+    use TrackRegistrationAttribution; // <-- Added 
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'users';
+
+}
+```
+
+
+#### Configuring
+Go over the configuration file, most notably the model you wish to track:
+
+connection name (optional - if you need a separated tracking database):
+
+``` php
+'connection_name' => 'mytrackingdbconnection'
+```
+
+model name:
+
+``` php
+'model' => 'App\Models\User'
+```
+
+authentication guard:
+
+``` php
+'guard' => 'web'
+```
+
+the column name:
+
+``` php
+'model_column_name' => 'user_id'
+```
+
+and attribution duration (in seconds)
+
+``` php
+'attribution_duration' => 2628000
+```
+
+also you can define some route what you don't want to track:
+
+``` php
+'landing_page_blacklist' => ['genealabs/laravel-caffeine/drip', 'admin']
+```
+
+if you want to use on multiple subdomain with a wildcard cookie, you can set your custom domain name:
+
+``` php
+'cookie_domain' => .yourdomain.com
+```
+
+this boolean will allow you to write the tracking data to the db in your queue (optional):
+
+``` php
+'async' => true
+```
+
+tracking in cases where cookies are disabled can be achieved by disabling the setting:
+
+``` php
+'uniqueness' => false
+```
+
+
+## Usage
+
+#### How does Fingerprints work?
+
+Fingerprints tracks the UTM parameters and HTTP refererers from all requests to your application that are sent by un-authenticated users. Not sure what UTM parameters are? [Wikipedia](https://en.wikipedia.org/wiki/UTM_parameters) has you covered:
+
+> UTM parameters (UTM) is a shortcut for Urchin Traffic Monitor. This text tags allow users to track and analyze traffic sources in analytical tools (f.e. Google Analytics). By adding UTM parameters to URLs, you can identify the source and campaigns that send traffic to your website. When a user clicks a referral link / ad or banner, these parameters are sent to Google Analytics (or other analytical tool), so you can see the effectiveness of each campaign in your reports
+
+> Here is example of UTM parameters in a URL: www.wikipedia.org/?utm_source=domain.com&utm_medium=banner&utm_campaign=winter15&utm_content=blue_ad&utm_term=headline_v1
+
+###### There are 5 dimensions of UTM parameters:
+
+* utm_source = name of the source (usually the domain of source website)
+
+* utm_medium = name of the medium; type of traffic (f.e. cpc = paid search, organic = organic search; referral = link from another website etc.)
+
+* utm_campaign = name of the campaign, f.e. name of the campaign in Google AdWords, date of your e-mail campaign, etc.
+
+* utm_content = to distinguish different parts of one campaign; f.e. name of AdGroup in Google AdWords (with auto-tagging you will see the headline of - your ads in this dimension)
+
+* utm_term = to distinguish different parts of one content; f.e.keyword in Google AdWords
+
+##### And how is it logged?
+
+- `CaptureAttributionDataMiddleware`: Only routes using this middleware can be tracked 
+- `TrackingFilter`: Used to determine whether or not a request should be logged
+- `TrackingLogger`: Doest the actual logging of requests to an Eloquent `Visit` model
+- `Fingerprinter`: Does the "linking" of requests using cookies or if configured falls back to using ip and the `User-agent` header
+- `TrackRegistrationAttributes`: Is used on the Eloquent model that we wish to track registration of (usually the `User` model)
+
+For a more technical explanation of the flow, please consult the section [Tracking process in details](#Tracking process in details) below.
+
+#### What data is tracked for each visit?
+The default configuration tracks the most relevant information
+
+* `landing_page`
+* `referrer_url`
+* `referrer_domain`
+* `utm_source`
+* `utm_campaign`
+* `utm_medium`
+* `utm_term`
+* `utm_content`
+* `created_at` (date of visit)
+
+But the package also makes it easy to the users ip address or basically any information available from the request object.  
+
+##### Get all of a user's visits before registering.
+``` php
+$user = User::find(1);
+$user->visits;
+```
+
+##### Get the attribution data of a user's initial visit before registering.
+``` php
+$user = User::find(1);
+$user->initialAttributionData();
+```
+
+##### Get the attribution data of a user's final visit before registering.
+``` php
+$user = User::find(1);
+$user->finalAttributionData();
+```
+
+##### Events
+The `TrackingLogger` emits an event `RegistrationTracked` once a registration has been processed while it is possible to listen for any visits tracked by simply listening for the [Eloquent Events](https://laravel.com/docs/eloquent#events) on the `Visit` model.
+
+##### Tracking process in details
+First off the `CaptureAttributionDataMiddleware` can be registered globally or on a selected list of routes.
+
+Whenever an incoming request passes through the `CaptureAttributionDataMiddleware` middleware then it checks whether or not the request should be tracked using the class `TrackingFilter` (can be changed to any class implementing the `TrackingFilterInterface`) and if the request should be logged `TrackingLogger` will do so (can be changed to any class implementing `TrackingLoggerInterface`).
+
+The `TrackingLogger` is responsible for logging relevant information about the request as a `Vist` record. The most important parameter is the request's "fingerprint" which is the entity that *should* be the same for multiple requests performed by the same user and hence this is what is used to link different requests.
+
+Calculating the fingerprint is done with a request macro which in turn uses a `Fingerprinter` singleton (can be changed to any class implementing `FingerprinterInterface`). It will look for the presence of a `fingerprints` cookie (configurable) and use that if it exists. If the cookie does not exist then it will create it so that it can be tracked on subsequent requests. It might be desireable for some to implement a custom logic for this but note that it is important that the calculation is a *pure function* meaning that calling this method multiple times with the same request as input should always yield the same result.
+
+At some point the user signs up (or *any* trackable model is created) which fires the job `AssignPreviousVisits`. This job calculates the fingerprint of the request and looks for any existing logged `Visit` records and link those to the new user.  
+
+### Keeping the fingerprints table light
+
+#### Prune the table
+
+Without pruning, the `visits` table can accumulate records very quickly. To mitigate this, you should schedule the `fingerprints:prune` Artisan command to run daily:
+
+```php
+$schedule->command('fingerprints:prune')->daily();
+```
+
+By default, all entries **unassigned to a user** older than the duration you set on the config file with `attribution_duration` . You may use the days option when calling the command to determine how long to retain Fingerprint data. For example, the following command will delete all records created over 10 days ago:
+
+```php
+$schedule->command('fingerprints:prune --days=10')->daily();
+```
+
+
+=======
+#### Disable robots tracking
+
+> Before disabling robots tracking, you will need to install `jaybizzle/crawler-detect`. To do so : `composer require jaybizzle/crawler-detect`
+
+Your table can get pretty big fast, mostly because of robots (Google, Bing, etc.). To disable robots tracking, change your `fingerprints.php` file on `config` folder accordingly :
+
+```php
+'disable_robots_tracking' => true 
+```
+
+## Upgrading
+
+### 2.x => 3.x
+Version 3.x of this package contains a few breaking changes that must be addressed if upgrading from earlier versions.
+
+- Rename the `cookie_token` column to `fingerprint`, in the table configured in `config('fingerprints.table_name')`
+- Add field `ip`' as a `nullable` `string` to the configured fingerprints table
+- Implement `TrackableInterface` on any models where the tracking should be tracked (usually the Eloquent model `User`)
+- (optional | recommended) Publish the updated configuration file: `php artisan vendor:publish --provider="MasudZaman\Fingerprints\FingerprintsServiceProvider" --tag=config --force`
+- If any modifications have been made to `TrackRegistrationAttribution` please consult the updated version to ensure proper compatability  
+
+## Change log
+
+Please see the commit history for more information what has changed recently.
+
+## Testing
+
+Haven't got round to this yet - PR's welcome ;)
+
+``` bash
+$ composer test
+```
+
+## Contributing
+
+If you run into any issues, have suggestions or would like to expand this packages functionality, please open an issue or a pull request :)
+
+## Thanks
+
+Thanks to ZenCast, some of the [best Podcast Hosting](https://zencast.fm?ref=fingerprints-github) around.
+
+
+
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+[ico-version]: https://img.shields.io/packagist/v/mzaman/fingerprints.svg?style=flat-square
+[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
+[ico-travis]: https://img.shields.io/travis/mzaman/fingerprints/master.svg?style=flat-square
+[ico-downloads]: https://img.shields.io/packagist/dt/mzaman/fingerprints.svg?style=flat-square
+
+[link-packagist]: https://packagist.org/packages/mzaman/fingerprints
+[link-travis]: https://travis-ci.org/mzaman/fingerprints
+[link-downloads]: https://packagist.org/packages/mzaman/fingerprints
+[link-author]: https://github.com/kyranb
+[link-contributors]: ../../contributors
