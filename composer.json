@@ -1,16 +1,16 @@
 {
-    "name": "mzaman/fingerprints",
+    "name": "mzaman/trails",
     "type": "library",
     "description": "A simple registration attribution tracking solution for Laravel (UTM Parameters and Referrers)",
     "keywords": [
-        "fingerprints",
+        "trails",
         "tracking",
         "utm",
         "utm parameters",
         "user tracking",
         "attribution tracking"
     ],
-    "homepage": "https://github.com/mzaman/fingerprints",
+    "homepage": "https://github.com/mzaman/trails",
     "license": "MIT",
     "authors": [
         {
@@ -32,12 +32,12 @@
     },
     "autoload": {
         "psr-4": {
-            "MasudZaman\\Fingerprints\\": "src/"
+            "MasudZaman\\Trails\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "MasudZaman\\Fingerprints\\Tests\\": "tests/"
+            "MasudZaman\\Trails\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -49,7 +49,7 @@
         },
         "laravel": {
             "providers": [
-                "MasudZaman\\Fingerprints\\FingerprintsServiceProvider"
+                "MasudZaman\\Trails\\TrailsServiceProvider"
             ]
         }
     }

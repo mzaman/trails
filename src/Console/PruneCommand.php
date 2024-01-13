@@ -1,9 +1,9 @@
 <?php
 
-namespace MasudZaman\Fingerprints\Console;
+namespace MasudZaman\Trails\Console;
 
 use Illuminate\Console\Command;
-use MasudZaman\Fingerprints\Visit;
+use MasudZaman\Trails\Visit;
 
 class PruneCommand extends Command
 {
@@ -12,14 +12,14 @@ class PruneCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'fingerprints:prune {--days= : The number of days to retain unassigned Fingerprints data}';
+    protected $signature = 'trails:prune {--days= : The number of days to retain unassigned Trails data}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Prune stale (ie unassigned) entries from the Fingerprints database';
+    protected $description = 'Prune stale (ie unassigned) entries from the Trails database';
 
     /**
      * Execute the console command.
@@ -28,7 +28,7 @@ class PruneCommand extends Command
      */
     public function handle()
     {
-        $days = $this->option('days') ?? config('fingerprints.attribution_duration') / (60 * 60 * 24);
+        $days = $this->option('days') ?? config('trails.attribution_duration') / (60 * 60 * 24);
 
         return Visit::prunable($days)->delete();
     }

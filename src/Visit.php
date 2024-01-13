@@ -1,6 +1,6 @@
 <?php
 
-namespace MasudZaman\Fingerprints;
+namespace MasudZaman\Trails;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -42,10 +42,10 @@ class Visit extends Model
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('fingerprints.table_name'));
+        $this->setTable(config('trails.table_name'));
 
-        if (config('fingerprints.connection_name')) {
-            $this->setConnection(config('fingerprints.connection_name'));
+        if (config('trails.connection_name')) {
+            $this->setConnection(config('trails.connection_name'));
         }
     }
 
@@ -56,9 +56,9 @@ class Visit extends Model
      */
     public function account()
     {
-        $model = config('fingerprints.model');
+        $model = config('trails.model');
 
-        return $this->belongsTo($model, config('fingerprints.column_name'));
+        return $this->belongsTo($model, config('trails.column_name'));
     }
 
     /**
@@ -66,9 +66,9 @@ class Visit extends Model
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopePreviousVisits($query, $fingerprint)
+    public function scopePreviousVisits($query, $trail)
     {
-        return $query->where('fingerprint', $fingerprint);
+        return $query->where('trail', $trail);
     }
 
     /**
@@ -76,9 +76,9 @@ class Visit extends Model
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeUnassignedPreviousVisits($query, $fingerprint)
+    public function scopeUnassignedPreviousVisits($query, $trail)
     {
-        return $query->whereNull(config('fingerprints.column_name'))->where('fingerprint', $fingerprint);
+        return $query->whereNull(config('trails.column_name'))->where('trail', $trail);
     }
 
     /**
@@ -88,6 +88,6 @@ class Visit extends Model
      */
     public function scopePrunable($query, $days)
     {
-        return $query->whereNull(config('fingerprints.column_name'))->where('created_at', '<=', today()->subDays($days));
+        return $query->whereNull(config('trails.column_name'))->where('created_at', '<=', today()->subDays($days));
     }
 }

@@ -1,13 +1,13 @@
 <?php
 
-namespace MasudZaman\Fingerprints;
+namespace MasudZaman\Trails;
 
 use Illuminate\Http\Request;
 
-interface FingerprinterInterface
+interface TrailerInterface
 {
     /**
-     * Calculate a fingerprint (identifier) for the request.
+     * Calculate a trail (identifier) for the request.
      *
      * Note that this method should be a "pure function" in the sense that any subsequent call to this method
      * should return the same string.
@@ -15,5 +15,5 @@ interface FingerprinterInterface
      * @param \Illuminate\Http\Request $request
      * @return string
      */
-    public function fingerprint(Request $request): string;
+    public function trail(Request $request): string;
 }

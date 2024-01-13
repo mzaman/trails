@@ -1,10 +1,10 @@
 <?php
 
-namespace MasudZaman\Fingerprints\Events;
+namespace MasudZaman\Trails\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use MasudZaman\Fingerprints\TrackableInterface;
+use MasudZaman\Trails\TrackableInterface;
 
 class RegistrationTracked
 {

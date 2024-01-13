@@ -1,6 +1,6 @@
-# :feet: Fingerprints for (UTM and Referrer Tracking)
+# :feet: Trails for (UTM and Referrer Tracking)
 
-![Fingerprints for Laravel (UTM and Referrer Tracking)](readme-header.jpg)
+![Trails for Laravel (UTM and Referrer Tracking)](readme-header.jpg)
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
@@ -8,29 +8,29 @@
 [![Total Downloads][ico-downloads]][link-downloads]
 
 
-Fingerprints is a simple registration attribution tracking solution for Laravel 7+
+Trails is a simple registration attribution tracking solution for Laravel 7+
 
 > “I know I waste half of my advertising dollars...I just wish I knew which half.” ~ *Henry Procter*.
 
 By tracking where user signups (or any other kind of registrations) originate from you can ensure that your marketing efforts are more focused.
 
-Fingerprints makes it easy to look back and see what lead to a user signing up. 
+Trails makes it easy to look back and see what lead to a user signing up. 
 
 ## Install
 
 Via Composer
 
 ``` bash
-$ composer require mzaman/fingerprints
+$ composer require mzaman/trails
 ```
 
 Publish the config and migration files:
 
 ``` php
-php artisan vendor:publish --provider="MasudZaman\Fingerprints\FingerprintsServiceProvider"
+php artisan vendor:publish --provider="MasudZaman\Trails\TrailsServiceProvider"
 ```
 
-Add the `\MasudZaman\Fingerprints\Middleware\CaptureAttributionDataMiddleware::class` either to a group of routes that should be tracked or as a global middleware in `App\Http\Kernel.php` (after the `EncryptCookie` middleware!) like so:
+Add the `\MasudZaman\Trails\Middleware\CaptureAttributionDataMiddleware::class` either to a group of routes that should be tracked or as a global middleware in `App\Http\Kernel.php` (after the `EncryptCookie` middleware!) like so:
 
 ```php
     /**
@@ -43,7 +43,7 @@ Add the `\MasudZaman\Fingerprints\Middleware\CaptureAttributionDataMiddleware::c
     protected $middleware = [
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
         \App\Http\Middleware\EncryptCookies::class,
-        \MasudZaman\Fingerprints\Middleware\CaptureAttributionDataMiddleware::class, // <-- Added
+        \MasudZaman\Trails\Middleware\CaptureAttributionDataMiddleware::class, // <-- Added
     ];
 ```
 
@@ -54,8 +54,8 @@ namespace App\Models;
 
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
-use MasudZaman\Fingerprints\TrackableInterface;
-use MasudZaman\Fingerprints\TrackRegistrationAttribution;
+use MasudZaman\Trails\TrackableInterface;
+use MasudZaman\Trails\TrackRegistrationAttribution;
 
 class User extends Model implements TrackableInterface // <-- Added
 {
@@ -133,9 +133,9 @@ tracking in cases where cookies are disabled can be achieved by disabling the se
 
 ## Usage
 
-#### How does Fingerprints work?
+#### How does Trails work?
 
-Fingerprints tracks the UTM parameters and HTTP refererers from all requests to your application that are sent by un-authenticated users. Not sure what UTM parameters are? [Wikipedia](https://en.wikipedia.org/wiki/UTM_parameters) has you covered:
+Trails tracks the UTM parameters and HTTP refererers from all requests to your application that are sent by un-authenticated users. Not sure what UTM parameters are? [Wikipedia](https://en.wikipedia.org/wiki/UTM_parameters) has you covered:
 
 > UTM parameters (UTM) is a shortcut for Urchin Traffic Monitor. This text tags allow users to track and analyze traffic sources in analytical tools (f.e. Google Analytics). By adding UTM parameters to URLs, you can identify the source and campaigns that send traffic to your website. When a user clicks a referral link / ad or banner, these parameters are sent to Google Analytics (or other analytical tool), so you can see the effectiveness of each campaign in your reports
 
@@ -158,7 +158,7 @@ Fingerprints tracks the UTM parameters and HTTP refererers from all requests to 
 - `CaptureAttributionDataMiddleware`: Only routes using this middleware can be tracked 
 - `TrackingFilter`: Used to determine whether or not a request should be logged
 - `TrackingLogger`: Doest the actual logging of requests to an Eloquent `Visit` model
-- `Fingerprinter`: Does the "linking" of requests using cookies or if configured falls back to using ip and the `User-agent` header
+- `Trailer`: Does the "linking" of requests using cookies or if configured falls back to using ip and the `User-agent` header
 - `TrackRegistrationAttributes`: Is used on the Eloquent model that we wish to track registration of (usually the `User` model)
 
 For a more technical explanation of the flow, please consult the section [Tracking process in details](#Tracking process in details) below.
@@ -204,26 +204,26 @@ First off the `CaptureAttributionDataMiddleware` can be registered globally or o
 
 Whenever an incoming request passes through the `CaptureAttributionDataMiddleware` middleware then it checks whether or not the request should be tracked using the class `TrackingFilter` (can be changed to any class implementing the `TrackingFilterInterface`) and if the request should be logged `TrackingLogger` will do so (can be changed to any class implementing `TrackingLoggerInterface`).
 
-The `TrackingLogger` is responsible for logging relevant information about the request as a `Vist` record. The most important parameter is the request's "fingerprint" which is the entity that *should* be the same for multiple requests performed by the same user and hence this is what is used to link different requests.
+The `TrackingLogger` is responsible for logging relevant information about the request as a `Vist` record. The most important parameter is the request's "trail" which is the entity that *should* be the same for multiple requests performed by the same user and hence this is what is used to link different requests.
 
-Calculating the fingerprint is done with a request macro which in turn uses a `Fingerprinter` singleton (can be changed to any class implementing `FingerprinterInterface`). It will look for the presence of a `fingerprints` cookie (configurable) and use that if it exists. If the cookie does not exist then it will create it so that it can be tracked on subsequent requests. It might be desireable for some to implement a custom logic for this but note that it is important that the calculation is a *pure function* meaning that calling this method multiple times with the same request as input should always yield the same result.
+Calculating the trail is done with a request macro which in turn uses a `Trailer` singleton (can be changed to any class implementing `TrailerInterface`). It will look for the presence of a `trails` cookie (configurable) and use that if it exists. If the cookie does not exist then it will create it so that it can be tracked on subsequent requests. It might be desireable for some to implement a custom logic for this but note that it is important that the calculation is a *pure function* meaning that calling this method multiple times with the same request as input should always yield the same result.
 
-At some point the user signs up (or *any* trackable model is created) which fires the job `AssignPreviousVisits`. This job calculates the fingerprint of the request and looks for any existing logged `Visit` records and link those to the new user.  
+At some point the user signs up (or *any* trackable model is created) which fires the job `AssignPreviousVisits`. This job calculates the trail of the request and looks for any existing logged `Visit` records and link those to the new user.  
 
-### Keeping the fingerprints table light
+### Keeping the trails table light
 
 #### Prune the table
 
-Without pruning, the `visits` table can accumulate records very quickly. To mitigate this, you should schedule the `fingerprints:prune` Artisan command to run daily:
+Without pruning, the `visits` table can accumulate records very quickly. To mitigate this, you should schedule the `trails:prune` Artisan command to run daily:
 
 ```php
-$schedule->command('fingerprints:prune')->daily();
+$schedule->command('trails:prune')->daily();
 ```
 
-By default, all entries **unassigned to a user** older than the duration you set on the config file with `attribution_duration` . You may use the days option when calling the command to determine how long to retain Fingerprint data. For example, the following command will delete all records created over 10 days ago:
+By default, all entries **unassigned to a user** older than the duration you set on the config file with `attribution_duration` . You may use the days option when calling the command to determine how long to retain Trail data. For example, the following command will delete all records created over 10 days ago:
 
 ```php
-$schedule->command('fingerprints:prune --days=10')->daily();
+$schedule->command('trails:prune --days=10')->daily();
 ```
 
 
@@ -232,7 +232,7 @@ $schedule->command('fingerprints:prune --days=10')->daily();
 
 > Before disabling robots tracking, you will need to install `jaybizzle/crawler-detect`. To do so : `composer require jaybizzle/crawler-detect`
 
-Your table can get pretty big fast, mostly because of robots (Google, Bing, etc.). To disable robots tracking, change your `fingerprints.php` file on `config` folder accordingly :
+Your table can get pretty big fast, mostly because of robots (Google, Bing, etc.). To disable robots tracking, change your `trails.php` file on `config` folder accordingly :
 
 ```php
 'disable_robots_tracking' => true 
@@ -243,10 +243,10 @@ Your table can get pretty big fast, mostly because of robots (Google, Bing, etc.
 ### 2.x => 3.x
 Version 3.x of this package contains a few breaking changes that must be addressed if upgrading from earlier versions.
 
-- Rename the `cookie_token` column to `fingerprint`, in the table configured in `config('fingerprints.table_name')`
-- Add field `ip`' as a `nullable` `string` to the configured fingerprints table
+- Rename the `cookie_token` column to `trail`, in the table configured in `config('trails.table_name')`
+- Add field `ip`' as a `nullable` `string` to the configured trails table
 - Implement `TrackableInterface` on any models where the tracking should be tracked (usually the Eloquent model `User`)
-- (optional | recommended) Publish the updated configuration file: `php artisan vendor:publish --provider="MasudZaman\Fingerprints\FingerprintsServiceProvider" --tag=config --force`
+- (optional | recommended) Publish the updated configuration file: `php artisan vendor:publish --provider="MasudZaman\Trails\TrailsServiceProvider" --tag=config --force`
 - If any modifications have been made to `TrackRegistrationAttribution` please consult the updated version to ensure proper compatability  
 
 ## Change log
@@ -267,7 +267,7 @@ If you run into any issues, have suggestions or would like to expand this packag
 
 ## Thanks
 
-Thanks to ZenCast, some of the [best Podcast Hosting](https://zencast.fm?ref=fingerprints-github) around.
+Thanks to ZenCast, some of the [best Podcast Hosting](https://zencast.fm?ref=trails-github) around.
 
 
 
@@ -275,13 +275,13 @@ Thanks to ZenCast, some of the [best Podcast Hosting](https://zencast.fm?ref=fin
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 
-[ico-version]: https://img.shields.io/packagist/v/mzaman/fingerprints.svg?style=flat-square
+[ico-version]: https://img.shields.io/packagist/v/mzaman/trails.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/mzaman/fingerprints/master.svg?style=flat-square
-[ico-downloads]: https://img.shields.io/packagist/dt/mzaman/fingerprints.svg?style=flat-square
+[ico-travis]: https://img.shields.io/travis/mzaman/trails/master.svg?style=flat-square
+[ico-downloads]: https://img.shields.io/packagist/dt/mzaman/trails.svg?style=flat-square
 
-[link-packagist]: https://packagist.org/packages/mzaman/fingerprints
-[link-travis]: https://travis-ci.org/mzaman/fingerprints
-[link-downloads]: https://packagist.org/packages/mzaman/fingerprints
+[link-packagist]: https://packagist.org/packages/mzaman/trails
+[link-travis]: https://travis-ci.org/mzaman/trails
+[link-downloads]: https://packagist.org/packages/mzaman/trails
 [link-author]: https://github.com/kyranb
 [link-contributors]: ../../contributors

@@ -1,13 +1,13 @@
 <?php
 
-namespace MasudZaman\Fingerprints\Tests\Unit\Jobs;
+namespace MasudZaman\Trails\Tests\Unit\Jobs;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-use MasudZaman\Fingerprints\Events\RegistrationTracked;
-use MasudZaman\Fingerprints\Jobs\AssignPreviousVisits;
-use MasudZaman\Fingerprints\Tests\TestCase;
-use MasudZaman\Fingerprints\TrackableInterface;
+use MasudZaman\Trails\Events\RegistrationTracked;
+use MasudZaman\Trails\Jobs\AssignPreviousVisits;
+use MasudZaman\Trails\Tests\TestCase;
+use MasudZaman\Trails\TrackableInterface;
 use Mockery\MockInterface;
 
 class AssignPreviousVisitsTest extends TestCase
@@ -22,12 +22,12 @@ class AssignPreviousVisitsTest extends TestCase
 
         Event::fake();
 
-        $job = new AssignPreviousVisits('test-fingerprint', $trackable);
+        $job = new AssignPreviousVisits('test-trail', $trackable);
         $job->handle(); // We are not checking the "queue" part of the job, only that it does actually dispatch the event
 
         Event::assertDispatched(RegistrationTracked::class, function ($event) use ($trackable) {
             return $event->trackable === $trackable
-                && $event->fingerprint = 'test-fingerprint';
+                && $event->trail = 'test-trail';
         });
     }
 }

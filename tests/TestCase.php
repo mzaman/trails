@@ -1,11 +1,11 @@
 <?php
 
-namespace MasudZaman\Fingerprints\Tests;
+namespace MasudZaman\Trails\Tests;
 
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use MasudZaman\Fingerprints\FingerprintsServiceProvider;
+use MasudZaman\Trails\TrailsServiceProvider;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
@@ -21,17 +21,17 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     protected function getPackageProviders($app)
     {
         return [
-            FingerprintsServiceProvider::class,
+            TrailsServiceProvider::class,
         ];
     }
 
     public function getEnvironmentSetUp($app)
     {
         // import the CreatePostsTable class from the migration
-        include_once __DIR__ . '/../database/migrations/create_fingerprints_table.php.stub';
+        include_once __DIR__ . '/../database/migrations/create_trails_table.php.stub';
 
         // run the up() method of that migration class
-        (new \CreateFingerprintsTable)->up();
+        (new \CreateTrailsTable)->up();
     }
 
     /**

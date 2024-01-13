@@ -1,22 +1,22 @@
 <?php
 
-namespace MasudZaman\Fingerprints\Tests\Unit;
+namespace MasudZaman\Trails\Tests\Unit;
 
 use Illuminate\Routing\Route;
-use MasudZaman\Fingerprints\Tests\TestCase;
+use MasudZaman\Trails\Tests\TestCase;
 
-class FingerprinterTest extends TestCase
+class TrailerTest extends TestCase
 {
     public function test_is_a_pure_function_when_cookie()
     {
-        $request = $this->makeRequest('GET', '/test', [], [config('fingerprints.cookie_name') => 'testing']);
+        $request = $this->makeRequest('GET', '/test', [], [config('trails.cookie_name') => 'testing']);
 
-        $fingerprint1 = $request->fingerprint();
-        $fingerprint2 = $request->fingerprint();
+        $trail1 = $request->trail();
+        $trail2 = $request->trail();
 
-        $this->assertNotEmpty($fingerprint1);
-        $this->assertNotEmpty($fingerprint2);
-        $this->assertEquals($fingerprint1, $fingerprint2);
+        $this->assertNotEmpty($trail1);
+        $this->assertNotEmpty($trail2);
+        $this->assertEquals($trail1, $trail2);
     }
 
     public function test_is_a_pure_function_when_no_cookie()
@@ -26,11 +26,11 @@ class FingerprinterTest extends TestCase
             return new Route(['GET'], '/test', ['test1', 'test2']);
         });
 
-        $fingerprint1 = $request->fingerprint();
-        $fingerprint2 = $request->fingerprint();
+        $trail1 = $request->trail();
+        $trail2 = $request->trail();
 
-        $this->assertNotEmpty($fingerprint1);
-        $this->assertNotEmpty($fingerprint2);
-        $this->assertEquals($fingerprint1, $fingerprint2);
+        $this->assertNotEmpty($trail1);
+        $this->assertNotEmpty($trail2);
+        $this->assertEquals($trail1, $trail2);
     }
 }

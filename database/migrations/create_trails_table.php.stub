@@ -3,12 +3,12 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateFingerprintsTable extends Migration
+class CreateTrailsTable extends Migration
 {
 
     private function getConnectionName()
     {
-        return config('fingerprints.connection_name') ? config('fingerprints.connection_name') : config('database.default');
+        return config('trails.connection_name') ? config('trails.connection_name') : config('database.default');
     }
 
     /**
@@ -18,11 +18,11 @@ class CreateFingerprintsTable extends Migration
      */
     public function up()
     {
-        Schema::connection($this->getConnectionName())->create(config('fingerprints.table_name'), function (Blueprint $table) {
+        Schema::connection($this->getConnectionName())->create(config('trails.table_name'), function (Blueprint $table) {
 
             $table->increments('id');
-            $table->integer(config('fingerprints.column_name'))->unsigned()->nullable();
-            $table->string('fingerprint');
+            $table->integer(config('trails.column_name'))->unsigned()->nullable();
+            $table->string('trail');
             $table->string('ip')->nullable();
             $table->string('landing_domain');
             $table->string('landing_page');
@@ -38,8 +38,8 @@ class CreateFingerprintsTable extends Migration
             $table->string('utm_content')->nullable();
             $table->string('referral')->nullable();
 
-            if (config('fingerprints.custom_parameters')) {
-                foreach (config('fingerprints.custom_parameters') as $parameter) {
+            if (config('trails.custom_parameters')) {
+                foreach (config('trails.custom_parameters') as $parameter) {
                     $table->string($parameter)->nullable();
                 }
             }
@@ -55,6 +55,6 @@ class CreateFingerprintsTable extends Migration
      */
     public function down()
     {
-        Schema::connection($this->getConnectionName())->drop(config('fingerprints.table_name'));
+        Schema::connection($this->getConnectionName())->drop(config('trails.table_name'));
     }
 }

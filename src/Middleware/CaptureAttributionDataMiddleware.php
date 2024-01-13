@@ -1,12 +1,12 @@
 <?php
 
-namespace MasudZaman\Fingerprints\Middleware;
+namespace MasudZaman\Trails\Middleware;
 
 use Closure;
 
 use Illuminate\Http\Request;
-use MasudZaman\Fingerprints\TrackingFilterInterface;
-use MasudZaman\Fingerprints\TrackingLoggerInterface;
+use MasudZaman\Trails\TrackingFilterInterface;
+use MasudZaman\Trails\TrackingLoggerInterface;
 
 class CaptureAttributionDataMiddleware
 {

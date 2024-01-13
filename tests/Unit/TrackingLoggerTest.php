@@ -1,8 +1,8 @@
 <?php
 
-namespace MasudZaman\Fingerprints\Tests\Unit;
+namespace MasudZaman\Trails\Tests\Unit;
 
-use MasudZaman\Fingerprints\Tests\TestCase;
+use MasudZaman\Trails\Tests\TestCase;
 
 class TrackingLoggerTest extends TestCase
 {

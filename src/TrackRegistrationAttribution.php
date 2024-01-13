@@ -1,10 +1,10 @@
 <?php
 
-namespace MasudZaman\Fingerprints;
+namespace MasudZaman\Trails;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use MasudZaman\Fingerprints\Jobs\AssignPreviousVisits;
+use MasudZaman\Trails\Jobs\AssignPreviousVisits;
 
 /**
  * Class TrackRegistrationAttribution.
@@ -28,7 +28,7 @@ trait TrackRegistrationAttribution
      */
     public function visits()
     {
-        return $this->hasMany(Visit::class, config('fingerprints.column_name'))->orderBy('created_at', 'desc');
+        return $this->hasMany(Visit::class, config('trails.column_name'))->orderBy('created_at', 'desc');
     }
 
     /**
@@ -47,9 +47,9 @@ trait TrackRegistrationAttribution
      */
     public function trackRegistration(Request $request): void
     {
-        $job = new AssignPreviousVisits($request->fingerprint(), $this);
+        $job = new AssignPreviousVisits($request->trail(), $this);
 
-        if (config('fingerprints.async') == true) {
+        if (config('trails.async') == true) {
             dispatch($job);
         } else {
             $job->handle();
@@ -63,7 +63,7 @@ trait TrackRegistrationAttribution
      */
     public function initialAttributionData()
     {
-        return $this->hasMany(Visit::class, config('fingerprints.column_name'))->orderBy('created_at', 'asc')->first();
+        return $this->hasMany(Visit::class, config('trails.column_name'))->orderBy('created_at', 'asc')->first();
     }
 
     /**
@@ -73,6 +73,6 @@ trait TrackRegistrationAttribution
      */
     public function finalAttributionData()
     {
-        return $this->hasMany(Visit::class, config('fingerprints.column_name'))->orderBy('created_at', 'desc')->first();
+        return $this->hasMany(Visit::class, config('trails.column_name'))->orderBy('created_at', 'desc')->first();
     }
 }

@@ -1,13 +1,13 @@
 <?php
 
-namespace MasudZaman\Fingerprints\Tests\Unit\Middleware;
+namespace MasudZaman\Trails\Tests\Unit\Middleware;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use MasudZaman\Fingerprints\Middleware\CaptureAttributionDataMiddleware;
-use MasudZaman\Fingerprints\Tests\TestCase;
-use MasudZaman\Fingerprints\TrackingFilterInterface;
-use MasudZaman\Fingerprints\TrackingLoggerInterface;
+use MasudZaman\Trails\Middleware\CaptureAttributionDataMiddleware;
+use MasudZaman\Trails\Tests\TestCase;
+use MasudZaman\Trails\TrackingFilterInterface;
+use MasudZaman\Trails\TrackingLoggerInterface;
 
 
 class CaptureAttributionDataMiddlewareTest extends TestCase

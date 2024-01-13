@@ -1,6 +1,6 @@
 <?php
 
-namespace MasudZaman\Fingerprints;
+namespace MasudZaman\Trails;
 
 use Illuminate\Http\Request;
 

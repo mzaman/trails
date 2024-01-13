@@ -1,6 +1,6 @@
 <?php
 
-namespace MasudZaman\Fingerprints;
+namespace MasudZaman\Trails;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,7 +54,7 @@ class TrackingFilter implements TrackingFilterInterface
      */
     protected function disableOnAuthentication()
     {
-        if (Auth::guard(config('fingerprints.guard'))->check() && config('fingerprints.disable_on_authentication')) {
+        if (Auth::guard(config('trails.guard'))->check() && config('trails.disable_on_authentication')) {
             return true;
         }
     }
@@ -64,7 +64,7 @@ class TrackingFilter implements TrackingFilterInterface
      */
     protected function disableInternalLinks()
     {
-        if (! config('fingerprints.disable_internal_links')) {
+        if (! config('trails.disable_internal_links')) {
             return false;
         }
 
@@ -87,7 +87,7 @@ class TrackingFilter implements TrackingFilterInterface
      */
     protected function disabledLandingPages($landing_page = null)
     {
-        $blacklist = (array) config('fingerprints.landing_page_blacklist');
+        $blacklist = (array) config('trails.landing_page_blacklist');
 
         if ($landing_page) {
             $k = array_search($landing_page, $blacklist);
@@ -111,7 +111,7 @@ class TrackingFilter implements TrackingFilterInterface
      */
     protected function disableRobotsTracking()
     {
-        if (! config('fingerprints.disable_robots_tracking')) {
+        if (! config('trails.disable_robots_tracking')) {
             return false;
         }
 

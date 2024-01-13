@@ -1,10 +1,10 @@
 <?php
 
-namespace MasudZaman\Fingerprints\Jobs;
+namespace MasudZaman\Trails\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use MasudZaman\Fingerprints\Visit;
+use MasudZaman\Trails\Visit;
 
 class TrackVisit implements ShouldQueue
 {
@@ -22,7 +22,7 @@ class TrackVisit implements ShouldQueue
     public function handle()
     {
         Visit::create(array_merge([
-            config('fingerprints.column_name') => $this->trackableId,
+            config('trails.column_name') => $this->trackableId,
         ], $this->attributionData));
     }
 }

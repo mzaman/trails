@@ -1,6 +1,6 @@
 <?php
 
-namespace MasudZaman\Fingerprints\Jobs;
+namespace MasudZaman\Trails\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -8,28 +8,28 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use MasudZaman\Fingerprints\Events\RegistrationTracked;
-use MasudZaman\Fingerprints\TrackableInterface;
-use MasudZaman\Fingerprints\Visit;
+use MasudZaman\Trails\Events\RegistrationTracked;
+use MasudZaman\Trails\TrackableInterface;
+use MasudZaman\Trails\Visit;
 
 class AssignPreviousVisits implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public string $fingerprint;
+    public string $trail;
     public TrackableInterface $trackable;
 
-    public function __construct(string $fingerprint, TrackableInterface $trackable)
+    public function __construct(string $trail, TrackableInterface $trackable)
     {
-        $this->fingerprint = $fingerprint;
+        $this->trail = $trail;
         $this->trackable = $trackable;
     }
 
     public function handle()
     {
-        Visit::unassignedPreviousVisits($this->fingerprint)->update(
+        Visit::unassignedPreviousVisits($this->trail)->update(
             [
-                config('fingerprints.column_name') => $this->trackable->id,
+                config('trails.column_name') => $this->trackable->id,
             ]
         );
 

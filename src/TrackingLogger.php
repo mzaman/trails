@@ -1,9 +1,9 @@
 <?php
 
-namespace MasudZaman\Fingerprints;
+namespace MasudZaman\Trails;
 
 use Illuminate\Http\Request;
-use MasudZaman\Fingerprints\Jobs\TrackVisit;
+use MasudZaman\Trails\Jobs\TrackVisit;
 use Illuminate\Support\Facades\Auth;
 
 class TrackingLogger implements TrackingLoggerInterface
@@ -25,10 +25,10 @@ class TrackingLogger implements TrackingLoggerInterface
     {
         $this->request = $request;
 
-        \Log::info('TrackingLogger track...', [Auth::user(), auth()->user(), auth()->guard(config('fingerprints.guard'))->user(), request()->user()]);
+        \Log::info('TrackingLogger track...', [Auth::user(), auth()->user(), auth()->guard(config('trails.guard'))->user(), request()->user()]);
         
         $job = new TrackVisit($this->captureAttributionData(), Auth::user() ? Auth::user()->id : null);
-        if (config('fingerprints.async') == true) {
+        if (config('trails.async') == true) {
             dispatch($job);
         } else {
             $job->handle();
@@ -44,7 +44,7 @@ class TrackingLogger implements TrackingLoggerInterface
     {
         $attributes = array_merge(
             [
-                'fingerprint'         => $this->request->fingerprint(),
+                'trail'         => $this->request->trail(),
                 'ip'                => $this->captureIp(),
                 'landing_domain'    => $this->captureLandingDomain(),
                 'landing_page'      => $this->captureLandingPage(),
@@ -70,8 +70,8 @@ class TrackingLogger implements TrackingLoggerInterface
     {
         $arr = [];
 
-        if (config('fingerprints.custom_parameters')) {
-            foreach (config('fingerprints.custom_parameters') as $parameter) {
+        if (config('trails.custom_parameters')) {
+            foreach (config('trails.custom_parameters') as $parameter) {
                 $arr[$parameter] = $this->request->input($parameter);
             }
         }
@@ -84,7 +84,7 @@ class TrackingLogger implements TrackingLoggerInterface
      */
     protected function captureIp()
     {
-        if (! config('fingerprints.attribution_ip')) {
+        if (! config('trails.attribution_ip')) {
             return null;
         }
 

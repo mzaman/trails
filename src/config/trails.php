@@ -61,7 +61,7 @@ return [
     | The name of the cookie that is set to keep track of attributions.
     |
     */
-    'cookie_name' => 'fingerprints',
+    'cookie_name' => 'trails',
 
     /*
     |--------------------------------------------------------------------------
@@ -74,7 +74,7 @@ return [
     | TrackingFilterInterface.
     |
     */
-    'tracking_filter' => \MasudZaman\Fingerprints\TrackingFilter::class,
+    'tracking_filter' => \MasudZaman\Trails\TrackingFilter::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -86,27 +86,27 @@ return [
     | that the class must implement the TrackingLoggerInterface.
     |
     */
-    'tracking_logger' => \MasudZaman\Fingerprints\TrackingLogger::class,
+    'tracking_logger' => \MasudZaman\Trails\TrackingLogger::class,
 
     /*
     |--------------------------------------------------------------------------
-    | Fingerprinter
+    | Trailer
     |--------------------------------------------------------------------------
     |
-    | This class is responsible for generatin a digital fingerprint (string) of
+    | This class is responsible for generatin a digital trail (string) of
     | the request. The default implementation will check for the presence of
-    | a fingerprint cookie and return this. If no cookie is found then it returns
-    | the requests fingerprint - se Laravel Docs for this method.
+    | a trail cookie and return this. If no cookie is found then it returns
+    | the requests trail - se Laravel Docs for this method.
     |
     */
-    'fingerprinter' => \MasudZaman\Fingerprints\Fingerprinter::class,
+    'trailer' => \MasudZaman\Trails\Trailer::class,
 
     /*
     |--------------------------------------------------------------------------
-    | Fingerprinting uniqueness
+    | Trailing uniqueness
     |--------------------------------------------------------------------------
     |
-    | If this setting is disabled then a semi-unique fingerprint will be generated
+    | If this setting is disabled then a semi-unique trail will be generated
     | for the request. The purpose of this is to anable tracking accross,
     | browsers or where cookies might be blocked.
     |

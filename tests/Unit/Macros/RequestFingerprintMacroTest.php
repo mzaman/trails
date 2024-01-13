@@ -1,12 +1,12 @@
 <?php
 
-namespace MasudZaman\Fingerprints\Tests\Unit\Macros;
+namespace MasudZaman\Trails\Tests\Unit\Macros;
 
-use MasudZaman\Fingerprints\Tests\TestCase;
+use MasudZaman\Trails\Tests\TestCase;
 
-class RequestFingerprintMacroTest extends TestCase
+class RequestTrailMacroTest extends TestCase
 {
-    public function test_fingerprint_macro()
+    public function test_trail_macro()
     {
         // Implement test
     }

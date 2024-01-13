@@ -1,12 +1,12 @@
 <?php
 
-namespace MasudZaman\Fingerprints;
+namespace MasudZaman\Trails;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 
-class Fingerprinter implements FingerprinterInterface
+class Trailer implements TrailerInterface
 {
     protected Request $request;
 
@@ -18,24 +18,24 @@ class Fingerprinter implements FingerprinterInterface
     }
 
     /** @inheritDoc */
-    public function fingerprint(Request $request): string
+    public function trail(Request $request): string
     {
         $this->request = $request;
 
-        if ($request->hasCookie(config('fingerprints.cookie_name'))) {
-            return $request->cookie(config('fingerprints.cookie_name'));
+        if ($request->hasCookie(config('trails.cookie_name'))) {
+            return $request->cookie(config('trails.cookie_name'));
         }
 
         // This will add the cookie to the response
         Cookie::queue(
-            config('fingerprints.cookie_name'),
-            $fingerprint = $this->fingerprint(),
-            config('fingerprints.attribution_duration'),
+            config('trails.cookie_name'),
+            $trail = $this->fingerprint(),
+            config('trails.attribution_duration'),
             null,
-            config('fingerprints.cookie_domain')
+            config('trails.cookie_domain')
         );
 
-        return $fingerprint;
+        return $trail;
     }
 
     /**
@@ -52,7 +52,7 @@ class Fingerprinter implements FingerprinterInterface
         return sha1(implode('|', array_filter([
             $this->request->ip(),
             $this->request->header('User-Agent'),
-            config('fingerprints.uniqueness') ? $this->random : null,
+            config('trails.uniqueness') ? $this->random : null,
         ])));
     }
 }
