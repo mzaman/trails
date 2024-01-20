@@ -154,9 +154,9 @@ return [
     | register, it might be interesting to not track them to save space.
     |
     */
-    'disable_on_authentication' => true,
+    'disable_on_authentication' => false,
     'disable_internal_links' => true, // * true: track only redirected with UTM parameter. * false: track all visits
-    'disable_robots_tracking' => false,
+    'disable_robots_tracking' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -172,8 +172,6 @@ return [
         'admin',
         'log-viewer',
         'log-viewer/logs',
-        'log-viewer/logs/2024-01-13',
-        'log-viewer/logs/2024-01-13/info',
         'log-viewer/logs/' . date("Y-m-d") . '/info'
     ],
 
