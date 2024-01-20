@@ -3,6 +3,7 @@
 namespace MasudZaman\Trails;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use MasudZaman\Trails\Jobs\AssignPreviousVisits;
 
@@ -75,4 +76,36 @@ trait TrackRegistrationAttribution
     {
         return $this->hasMany(Visit::class, config('trails.column_name'))->orderBy('created_at', 'desc')->first();
     }
+    
+    /**
+     * Get columns of Visit model that start with "utm_".
+     *
+     * @return array
+     */
+    public function utmColumns()
+    {
+        $table = (new Visit)->getTable();
+        $columns = Schema::getColumnListing($table);
+
+        // Filter columns that start with "utm_"
+        $utmColumns = array_filter($columns, function ($column) {
+            return strpos($column, 'utm_') === 0;
+        });
+
+        return array_values($utmColumns);
+    }
+
+    /**
+     * Retrieve UTM data from visits with specified conditions.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function utms()
+    {
+        // Build the query to retrieve UTM data
+        return $this->hasMany(Visit::class, config('trails.column_name'))
+            ->whereNotNull($this->utmColumns()) // Add whereNotNull conditions for UTM columns
+            ->orderBy('created_at', 'asc');
+    }
+
 }

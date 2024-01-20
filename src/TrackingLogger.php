@@ -25,8 +25,6 @@ class TrackingLogger implements TrackingLoggerInterface
     {
         $this->request = $request;
 
-        \Log::info('TrackingLogger track...', [Auth::user(), auth()->user(), auth()->guard(config('trails.guard'))->user(), request()->user()]);
-        
         $job = new TrackVisit($this->captureAttributionData(), Auth::user() ? Auth::user()->id : null);
         if (config('trails.async') == true) {
             dispatch($job);
@@ -56,9 +54,6 @@ class TrackingLogger implements TrackingLoggerInterface
             $this->captureReferrer(),
             $this->getCustomParameter()
         );
-
-        // \Log::info('headers', $this->request->headers->all());
-        \Log::info('capture attribution', $attributes);
 
         return array_map(fn (?string $item) => is_string($item) ? substr($item, 0, 255) : $item, $attributes);
     }
