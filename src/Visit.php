@@ -3,6 +3,7 @@
 namespace MasudZaman\Trails;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class Visit extends Model
 {
@@ -79,6 +80,25 @@ class Visit extends Model
     public function scopeUnassignedPreviousVisits($query, $trail)
     {
         return $query->whereNull(config('trails.column_name'))->where('trail', $trail);
+    }
+
+    /**
+     * Scope a query to only include UTM visits.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeUtms($query, $trail = null)
+    {
+        $columns = Schema::getColumnListing($this->getTable());
+
+        // Filter columns that start with "utm_"
+        $utmColumns = array_values(array_filter($columns, function ($column) {
+            return strpos($column, 'utm_') === 0;
+        }));
+
+        $query = $query->whereNotNull($utmColumns);
+
+        return $trail ? $query->where('trail', $trail) : $query;
     }
 
     /**

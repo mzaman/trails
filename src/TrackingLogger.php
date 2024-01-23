@@ -5,9 +5,12 @@ namespace MasudZaman\Trails;
 use Illuminate\Http\Request;
 use MasudZaman\Trails\Jobs\TrackVisit;
 use Illuminate\Support\Facades\Auth;
+use MasudZaman\Trails\CommonTrait;
 
 class TrackingLogger implements TrackingLoggerInterface
 {
+    use CommonTrait;
+
     /**
      * The Request instance.
      *
@@ -42,7 +45,9 @@ class TrackingLogger implements TrackingLoggerInterface
     {
         $attributes = array_merge(
             [
-                'trail'         => $this->request->trail(),
+                'trail'             => $this->request->trail(),
+                // 'action_type'       => $this->captureActionType(),
+                // 'action_value'      => $this->captureActionValue(),
                 'ip'                => $this->captureIp(),
                 'landing_domain'    => $this->captureLandingDomain(),
                 'landing_page'      => $this->captureLandingPage(),
@@ -115,7 +120,7 @@ class TrackingLogger implements TrackingLoggerInterface
      */
     protected function captureUTM()
     {
-        $parameters = ['utm_source', 'utm_campaign', 'utm_medium', 'utm_term', 'utm_content'];
+        $parameters = $this->utmColumns();
 
         $utm = [];
 
@@ -152,6 +157,22 @@ class TrackingLogger implements TrackingLoggerInterface
     protected function captureGCLID()
     {
         return $this->request->input('gclid');
+    }
+
+    /**
+     * @return string
+     */
+    protected function captureActionType()
+    {
+        return $this->request->input('action_type');
+    }
+
+    /**
+     * @return string
+     */
+    protected function captureActionValue()
+    {
+        return $this->request->input('action_value');
     }
 
     /**
