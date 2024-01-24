@@ -2,9 +2,11 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use MasudZaman\Trails\CommonTrait;
 
 class CreateTrailsTable extends Migration
 {
+    use CommonTrait;
 
     private function getConnectionName()
     {
@@ -29,15 +31,15 @@ class CreateTrailsTable extends Migration
             $table->string('landing_domain');
             $table->string('landing_page');
             $table->string('landing_params')->nullable();
+
+            foreach ($this->getCampaignKeys()) as $parameter) {
+                $table->string($parameter)->nullable();
+            }
+
             $table->string('referrer_domain')->nullable();
             $table->string('referrer_url')->nullable();
             $table->string('referrer')->nullable();
             $table->string('gclid')->nullable();
-            $table->string('utm_source')->nullable();
-            $table->string('utm_campaign')->nullable();
-            $table->string('utm_medium')->nullable();
-            $table->string('utm_term')->nullable();
-            $table->string('utm_content')->nullable();
             $table->string('referral')->nullable();
 
             if (config('trails.custom_parameters')) {

@@ -4,9 +4,11 @@ namespace MasudZaman\Trails;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
+use MasudZaman\Trails\CommonTrait;
 
 class Visit extends Model
 {
+    use CommonTrait;
 
     /**
      * The name of the database table.
@@ -83,20 +85,13 @@ class Visit extends Model
     }
 
     /**
-     * Scope a query to only include UTM visits.
+     * Scope a query to only include campaign visits.
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeUtms($query, $trail = null)
+    public function scopeCampaigns($query, $trail = null)
     {
-        $columns = Schema::getColumnListing($this->getTable());
-
-        // Filter columns that start with "utm_"
-        $utmColumns = array_values(array_filter($columns, function ($column) {
-            return strpos($column, 'utm_') === 0;
-        }));
-
-        $query = $query->whereNotNull($utmColumns);
+        $query = $query->whereNotNull($this->getCampaignKeys());
 
         return $trail ? $query->where('trail', $trail) : $query;
     }

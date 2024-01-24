@@ -138,6 +138,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Campaign tracking parameter
+    |--------------------------------------------------------------------------
+    |
+    |
+    */
+    'campaign_prefix' => 'campaign_',
+    'campaign_parameters' => [
+        'name' => 'matomo_campaign,mtm_cpn,utm_campaign',
+        'keyword' => 'mtm_keyword,matomo_kwd,mtm_kwd,utm_term',
+        'source' => 'mtm_source,utm_source',
+        'medium' => 'mtm_medium,utm_medium',
+        'content' => 'mtm_content,utm_content',
+        'id' => 'mtm_cid,utm_id,mtm_clid',
+        'group' => 'mtm_group',
+        'placement' => 'mtm_placement',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Custom tracking parameter
     |--------------------------------------------------------------------------
     |
