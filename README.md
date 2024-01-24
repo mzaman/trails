@@ -21,7 +21,7 @@ Trails makes it easy to look back and see what lead to a user signing up.
 Via Composer
 
 ``` bash
-$ composer require mzaman/trails
+composer require mzaman/trails
 ```
 
 Publish the config and migration files:

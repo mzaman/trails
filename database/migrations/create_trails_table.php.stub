@@ -32,7 +32,7 @@ class CreateTrailsTable extends Migration
             $table->string('landing_page');
             $table->string('landing_params')->nullable();
 
-            foreach ($this->getCampaignKeys()) as $parameter) {
+            foreach ($this->getCampaignKeys() as $parameter) {
                 $table->string($parameter)->nullable();
             }
 
