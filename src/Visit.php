@@ -4,11 +4,9 @@ namespace MasudZaman\Trails;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
-use MasudZaman\Trails\CommonTrait;
 
 class Visit extends Model
 {
-    use CommonTrait;
 
     /**
      * The name of the database table.
@@ -91,7 +89,7 @@ class Visit extends Model
      */
     public function scopeCampaigns($query, $trail = null)
     {
-        $query = $query->whereNotNull($this->getCampaignKeys());
+        $query = $query->whereNotNull(config('trails.campaign_prefix') . 'name');
 
         return $trail ? $query->where('trail', $trail) : $query;
     }

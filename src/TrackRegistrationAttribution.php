@@ -87,11 +87,11 @@ trait TrackRegistrationAttribution
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function utms()
+    public function campaigns()
     {
         // Build the query to retrieve UTM data
         return $this->hasMany(Visit::class, config('trails.column_name'))
-            ->utms()
+            ->campaigns()
             ->orderBy('created_at', 'asc');
     }
 
