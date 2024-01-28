@@ -30,8 +30,7 @@ return [
     | The model to track attribution events for.
     |
     */
-    'model' => App\Domains\V1\Auth\Models\User::class,
-    // 'model' => App\Models\User::class,
+    'model' => App\Models\User::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -188,10 +187,8 @@ return [
         'genealabs/laravel-caffeine/drip',
         '_debugbar/assets/javascript',
         '_debugbar/assets/stylesheets',
-        'admin',
         'log-viewer',
         'log-viewer/logs',
-        'log-viewer/logs/' . date("Y-m-d") . '/info'
     ],
 
     /*
