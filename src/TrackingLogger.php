@@ -46,8 +46,6 @@ class TrackingLogger implements TrackingLoggerInterface
         $attributes = array_merge(
             [
                 'trail'             => $this->request->trail(),
-                // 'action_type'       => $this->captureActionType(),
-                // 'action_value'      => $this->captureActionValue(),
                 'ip'                => $this->captureIp(),
                 'landing_domain'    => $this->captureLandingDomain(),
                 'landing_page'      => $this->captureLandingPage(),
@@ -143,8 +141,6 @@ class TrackingLogger implements TrackingLoggerInterface
         return $campaigns;
     }
 
-
-
     /**
      * @return array
      */
@@ -169,21 +165,6 @@ class TrackingLogger implements TrackingLoggerInterface
         return $this->request->input('gclid');
     }
 
-    /**
-     * @return string
-     */
-    protected function captureActionType()
-    {
-        return $this->request->input('action_type');
-    }
-
-    /**
-     * @return string
-     */
-    protected function captureActionValue()
-    {
-        return $this->request->input('action_value');
-    }
 
     /**
      * @return string

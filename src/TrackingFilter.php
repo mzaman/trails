@@ -68,6 +68,11 @@ class TrackingFilter implements TrackingFilterInterface
             return false;
         }
 
+
+        if (Auth::user()?->campaigns) {
+            return false;
+        }
+
         if ($referrer_domain = $this->request->headers->get('referer')) {
             $referrer_domain = parse_url($referrer_domain)['host'] ?? null;
             $request_domain  = $this->request->server('SERVER_NAME');
@@ -76,6 +81,7 @@ class TrackingFilter implements TrackingFilterInterface
                 return true;
             }
         }
+
 
         return false;
     }
