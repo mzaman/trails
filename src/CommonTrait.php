@@ -47,7 +47,7 @@ trait CommonTrait
         $table = (new Visit)->getTable();
         $columns = Schema::getColumnListing($table);
 
-        // Filter columns that start with "utm_"
+        // Filter columns that start with campaign_prefix
         $campaignColumns = array_filter($columns, function ($column) {
             return strpos($column, config('trails.campaign_prefix')) === 0;
         });

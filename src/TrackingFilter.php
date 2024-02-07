@@ -25,8 +25,10 @@ class TrackingFilter implements TrackingFilterInterface
     {
         $this->request = $request;
 
-        //Only track get requests
-        if (! $this->request->isMethod('get')) {
+        //Only track supported request methods
+        $supportedMethods = ['get', 'post', 'put'];
+
+        if (!in_array(strtolower($this->request->method()), $supportedMethods)) {
             return false;
         }
 
@@ -68,8 +70,17 @@ class TrackingFilter implements TrackingFilterInterface
             return false;
         }
 
+        if ($trail = $this->request->trail()) {
+            if( Visit::campaigns($trail)->count() > 0) {
+                return false;
+            }
+        }
 
         if (Auth::user()?->campaigns) {
+            return false;
+        }
+
+        if($this->request->has('ref')) {
             return false;
         }
 
