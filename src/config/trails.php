@@ -212,4 +212,25 @@ return [
     |
     */
     'async' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue
+    |--------------------------------------------------------------------------
+    |
+    | For queuing the tracking you can use custom queue names.
+    | Use 'default' if you want to run the queued items within the standard queue.
+    |
+    */
+    'queue' => env('TRAILS_QUEUE', 'database'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue connection
+    |--------------------------------------------------------------------------
+    |
+    | Optionally set a custom queue connection. Laravel defaults to "sync".
+    |
+    */
+    'queueConnection' => env('TRAILS_QUEUE_CONNECTION', 'default'),
 ];

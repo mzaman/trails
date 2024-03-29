@@ -17,7 +17,24 @@ class TrackingLogger implements TrackingLoggerInterface
      * @var \Illuminate\Http\Request
      */
     protected Request $request;
+    /** @var bool */
+    protected $async;
+    /** @var string */
+    protected $queue;
+    /** @var string */
+    protected $queueConnection;
 
+    /**
+     * TrackingLogger constructor.
+     *
+     */
+    public function __construct()
+    {
+        $this->async = config('trails.async', false);
+        $this->queue = config('trails.queue', 'default');
+        $this->queueConnection = config('trails.queueConnection', 'database');
+    }
+    
     /**
      * Track the request.
      *
@@ -29,8 +46,10 @@ class TrackingLogger implements TrackingLoggerInterface
         $this->request = $request;
 
         $job = new TrackVisit($this->captureAttributionData(), Auth::user() ? Auth::user()->id : null);
-        if (config('trails.async') == true) {
-            dispatch($job);
+        if ($this->async == true) {
+            dispatch($job)
+            ->onConnection($this->queueConnection)
+            ->onQueue($this->queue);
         } else {
             $job->handle();
         }
