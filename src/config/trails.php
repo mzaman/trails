@@ -144,14 +144,14 @@ return [
     */
     'campaign_prefix' => 'campaign_',
     'campaign_parameters' => [
-        'name' => 'matomo_campaign,mtm_cpn,utm_campaign',
-        'keyword' => 'mtm_keyword,matomo_kwd,mtm_kwd,utm_term',
-        'source' => 'mtm_source,utm_source',
-        'medium' => 'mtm_medium,utm_medium',
-        'content' => 'mtm_content,utm_content',
-        'id' => 'mtm_cid,utm_id,mtm_clid',
-        'group' => 'mtm_group',
-        'placement' => 'mtm_placement',
+        'name' => 'mtm_campaign,mtm_cpn,matomo_campaign,matomo_cpn,pk_campaign,pk_cpn,piwik_campaign,piwik_cpn,utm_campaign,utm_cpn',
+        'keyword' => 'mtm_keyword,mtm_kwd,matomo_keyword,matomo_kwd,pk_keyword,pk_kwd,piwik_keyword,piwik_kwd,utm_term',
+        'source' => 'mtm_source,matomo_source,pk_source,piwik_source,utm_source',
+        'medium' => 'mtm_medium,matomo_medium,pk_medium,piwik_medium,utm_medium',
+        'content' => 'mtm_content,matomo_content,pk_content,piwik_content,utm_content',
+        'id' => 'mtm_id,mtm_cid,mtm_clid,matomo_id,matomo_cid,matomo_clid,pk_id,pk_cid,pk_clid,piwik_id,piwik_cid,piwik_clid,utm_id',
+        'group' => 'mtm_group,matomo_group,pk_group,piwik_group,utm_group',
+        'placement' => 'mtm_placement,matomo_placement,pk_placement,piwik_placement,utm_placement',
     ],
 
     /*
