@@ -5,6 +5,7 @@ namespace MasudZaman\Trails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Jaybizzle\CrawlerDetect\CrawlerDetect;
+use Illuminate\Support\Str;
 
 class TrackingFilter implements TrackingFilterInterface
 {
@@ -36,13 +37,14 @@ class TrackingFilter implements TrackingFilterInterface
             return false;
         }
 
+        if ($this->disabledLandingPages($this->captureLandingPage())) {
+            return false;
+        }
+        
         if ($this->disableInternalLinks()) {
             return false;
         }
 
-        if ($this->disabledLandingPages($this->captureLandingPage())) {
-            return false;
-        }
 
         if ($this->disableRobotsTracking()) {
             return false;
@@ -107,9 +109,12 @@ class TrackingFilter implements TrackingFilterInterface
         $blacklist = (array) config('trails.landing_page_blacklist');
 
         if ($landing_page) {
-            $k = array_search($landing_page, $blacklist);
-
-            return $k === false ? false : true;
+            foreach ($blacklist as $pattern) {
+                if (\Str::is($pattern, $landing_page)) {
+                    return true;
+                }
+            }
+            return false;
         } else {
             return $blacklist;
         }
