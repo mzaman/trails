@@ -184,11 +184,9 @@ return [
     |
     */
     'landing_page_blacklist' => [
-        'genealabs/laravel-caffeine/drip',
-        '_debugbar/assets/javascript',
-        '_debugbar/assets/stylesheets',
-        'log-viewer',
-        'log-viewer/logs',
+        'genealabs/*',
+        '_debugbar/*',
+        'log-viewer/*',
     ],
 
     /*
