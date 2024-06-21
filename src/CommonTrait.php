@@ -33,8 +33,8 @@ trait CommonTrait
             foreach ($campaignKeys as $campaignKey) {
                 $campaignKey = trim($campaignKey);
 
-                if ($this->request->has($campaignKey)) {
-                    $campaignValues[$campaignKey] = $this->request->input($campaignKey);
+                if (request()->has($campaignKey)) {
+                    $campaignValues[$campaignKey] = request()->input($campaignKey);
                 }
             }
 
@@ -56,12 +56,10 @@ trait CommonTrait
      *
      * This method verifies if there are multiple campaign parameters present in the given URL.
      *
-     * @param string|null $url The URL to check. If null, the current request URL is used.
      * @return bool True if the URL has more than one campaign parameter, false otherwise.
      */
-    protected function urlHasCampaign($url = null)
+    protected function urlHasCampaign()
     {
-        $url = $url ?? request()->url();
         return count(array_filter($this->captureCampaign())) > 1;
     }
 
