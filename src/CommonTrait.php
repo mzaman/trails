@@ -13,6 +13,42 @@ trait CommonTrait
 {
 
     /**
+     * @return array
+     */
+    protected function captureCampaign()
+    {
+        $campaigns = [];
+
+        foreach ($this->getCampaignParameters() as $defaultKey => $campaignKeys) {
+            $campaignKeys = preg_split('/[\s,]+/', $campaignKeys);
+            $campaignValues = [];
+
+            foreach ($campaignKeys as $campaignKey) {
+                $campaignKey = trim($campaignKey);
+
+                if ($this->request->has($campaignKey)) {
+                    $campaignValues[$campaignKey] = $this->request->input($campaignKey);
+                }
+            }
+            
+            $campaigns[$defaultKey] = count($campaignValues) === 1 ? reset($campaignValues) : (count($campaignValues) > 1 ? $campaignValues : null);
+            
+            // $campaigns[$defaultKey] = count($campaignValues) ? $campaignValues : null;
+            // $campaigns[$defaultKey] = count($campaignValues) > 1 ? $campaignValues : reset($campaignValues);
+        }
+
+        return $campaigns;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function urlHasCampaign($url = null) {
+        $url = $url ?? request()->url();
+        return count(array_filter($this->captureCampaign())) > 1 ? true : false;
+    }
+
+    /**
      * Get the campaign parameters with modified keys.
      *
      * This method combines the modified campaign keys with the original parameter values.
