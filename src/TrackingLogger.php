@@ -7,6 +7,10 @@ use MasudZaman\Trails\Jobs\TrackVisit;
 use Illuminate\Support\Facades\Auth;
 use MasudZaman\Trails\CommonTrait;
 
+/**
+ * Class TrackingLogger
+ * Implements TrackingLoggerInterface for tracking user visits and attributions.
+ */
 class TrackingLogger implements TrackingLoggerInterface
 {
     use CommonTrait;
@@ -17,16 +21,31 @@ class TrackingLogger implements TrackingLoggerInterface
      * @var \Illuminate\Http\Request
      */
     protected Request $request;
-    /** @var bool */
-    protected $async;
-    /** @var string */
-    protected $queue;
-    /** @var string */
-    protected $queueConnection;
+
+    /**
+     * Indicates if the tracking should be done asynchronously.
+     *
+     * @var bool
+     */
+    protected bool $async;
+
+    /**
+     * The name of the queue to be used for asynchronous tracking.
+     *
+     * @var string
+     */
+    protected string $queue;
+
+    /**
+     * The queue connection to be used.
+     *
+     * @var string
+     */
+    protected string $queueConnection;
 
     /**
      * TrackingLogger constructor.
-     *
+     * Initializes the logger with configuration settings.
      */
     public function __construct()
     {
@@ -34,9 +53,9 @@ class TrackingLogger implements TrackingLoggerInterface
         $this->queue = config('trails.queue', 'default');
         $this->queueConnection = config('trails.queueConnection', 'database');
     }
-    
+
     /**
-     * Track the request.
+     * Track the request and log attribution data.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Request
@@ -45,11 +64,15 @@ class TrackingLogger implements TrackingLoggerInterface
     {
         $this->request = $request;
 
-        $job = new TrackVisit($this->captureAttributionData(), Auth::user() ? Auth::user()->id : null);
-        if ($this->async == true) {
+        $job = new TrackVisit(
+            $this->captureAttributionData(), 
+            Auth::check() ? Auth::user()->id : null
+        );
+
+        if ($this->async) {
             dispatch($job)
-            ->onConnection($this->queueConnection)
-            ->onQueue($this->queue);
+                ->onConnection($this->queueConnection)
+                ->onQueue($this->queue);
         } else {
             $job->handle();
         }
@@ -58,19 +81,21 @@ class TrackingLogger implements TrackingLoggerInterface
     }
 
     /**
+     * Capture attribution data from the request.
+     *
      * @return array
      */
-    protected function captureAttributionData()
+    protected function captureAttributionData(): array
     {
         $attributes = array_merge(
             [
-                'trail'             => $this->request->trail(),
-                'ip'                => $this->captureIp(),
-                'landing_domain'    => $this->captureLandingDomain(),
-                'landing_page'      => $this->captureLandingPage(),
-                'landing_params'    => $this->captureLandingParams(),
-                'referral'          => $this->captureReferral(),
-                'gclid'             => $this->captureGCLID(),
+                'trail' => $this->request->trail(),
+                'ip' => $this->captureIp(),
+                'landing_domain' => $this->captureLandingDomain(),
+                'landing_page' => $this->captureLandingPage(),
+                'landing_params' => $this->captureLandingParams(),
+                'referral' => $this->captureReferral(),
+                'gclid' => $this->captureGCLID(),
             ],
             $this->captureCampaign(),
             $this->captureReferrer(),
@@ -81,86 +106,94 @@ class TrackingLogger implements TrackingLoggerInterface
     }
 
     /**
+     * Capture custom parameters from the request.
+     *
      * @return array
      */
-    protected function getCustomParameter()
+    protected function getCustomParameter(): array
     {
-        $arr = [];
+        $customParameters = config('trails.custom_parameters', []);
+        $parameters = [];
 
-        if (config('trails.custom_parameters')) {
-            foreach (config('trails.custom_parameters') as $parameter) {
-                $arr[$parameter] = $this->request->input($parameter);
-            }
+        foreach ($customParameters as $parameter) {
+            $parameters[$parameter] = $this->request->input($parameter);
         }
 
-        return $arr;
+        return $parameters;
     }
 
     /**
+     * Capture the client's IP address if allowed by configuration.
+     *
      * @return string|null
      */
-    protected function captureIp()
+    protected function captureIp(): ?string
     {
-        if (! config('trails.attribution_ip')) {
-            return null;
-        }
-
-        return $this->request->ip();
+        return config('trails.attribution_ip', false) ? $this->request->ip() : null;
     }
 
     /**
+     * Capture the landing domain from the server request.
+     *
      * @return string
      */
-    protected function captureLandingDomain()
+    protected function captureLandingDomain(): string
     {
         return $this->request->server('SERVER_NAME');
     }
 
     /**
+     * Capture the landing page path from the request.
+     *
      * @return string
      */
-    protected function captureLandingPage()
+    protected function captureLandingPage(): string
     {
         return $this->request->path();
     }
 
     /**
-     * @return string
+     * Capture the query string parameters from the request.
+     *
+     * @return string|null
      */
-    protected function captureLandingParams()
+    protected function captureLandingParams(): ?string
     {
         return $this->request->getQueryString();
     }
 
     /**
+     * Capture the referrer URL and domain from the request headers.
+     *
      * @return array
      */
-    protected function captureReferrer()
+    protected function captureReferrer(): array
     {
-        $referrer = [];
+        $referrerUrl = $this->request->headers->get('referer');
+        $parsedUrl = parse_url($referrerUrl);
 
-        $referrer['referrer_url'] = $this->request->headers->get('referer');
-
-        $parsedUrl = parse_url($referrer['referrer_url']);
-
-        $referrer['referrer_domain'] = isset($parsedUrl['host']) ? $parsedUrl['host'] : null;
-
-        return $referrer;
+        return [
+            'referrer_url' => $referrerUrl,
+            'referrer_domain' => $parsedUrl['host'] ?? null,
+        ];
     }
 
     /**
-     * @return string
+     * Capture the Google Click Identifier (GCLID) from the request.
+     *
+     * @return string|null
      */
-    protected function captureGCLID()
+    protected function captureGCLID(): ?string
     {
         return $this->request->input('gclid');
     }
 
-
     /**
-     * @return string
+     * Capture the referral parameter from the request.
+     *
+     * @return string|null
      */
-    protected function captureReferral()
+    protected function captureReferral(): ?string
     {
         return $this->request->input('ref');
     }
