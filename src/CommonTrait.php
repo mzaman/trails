@@ -11,18 +11,25 @@ use Illuminate\Database\Eloquent\Builder;
  */
 trait CommonTrait
 {
-
     /**
-     * @return array
+     * Capture campaign parameters from the request.
+     *
+     * This method retrieves campaign parameters based on predefined keys
+     * and their aliases, then filters and formats them into an associative array.
+     *
+     * @return array An associative array of captured campaign parameters.
      */
     protected function captureCampaign()
     {
         $campaigns = [];
 
+        // Iterate through the campaign parameters
         foreach ($this->getCampaignParameters() as $defaultKey => $campaignKeys) {
+            // Split campaign keys by spaces or commas
             $campaignKeys = preg_split('/[\s,]+/', $campaignKeys);
             $campaignValues = [];
 
+            // Check for the presence of each campaign key in the request
             foreach ($campaignKeys as $campaignKey) {
                 $campaignKey = trim($campaignKey);
 
@@ -30,22 +37,32 @@ trait CommonTrait
                     $campaignValues[$campaignKey] = $this->request->input($campaignKey);
                 }
             }
-            
-            $campaigns[$defaultKey] = count($campaignValues) === 1 ? reset($campaignValues) : (count($campaignValues) > 1 ? $campaignValues : null);
-            
-            // $campaigns[$defaultKey] = count($campaignValues) ? $campaignValues : null;
-            // $campaigns[$defaultKey] = count($campaignValues) > 1 ? $campaignValues : reset($campaignValues);
+
+            // Determine the value to store for each campaign parameter
+            if (count($campaignValues) === 1) {
+                $campaigns[$defaultKey] = reset($campaignValues);
+            } elseif (count($campaignValues) > 1) {
+                $campaigns[$defaultKey] = $campaignValues;
+            } else {
+                $campaigns[$defaultKey] = null;
+            }
         }
 
         return $campaigns;
     }
 
     /**
-     * @return bool
+     * Check if the URL has campaign parameters.
+     *
+     * This method verifies if there are multiple campaign parameters present in the given URL.
+     *
+     * @param string|null $url The URL to check. If null, the current request URL is used.
+     * @return bool True if the URL has more than one campaign parameter, false otherwise.
      */
-    protected function urlHasCampaign($url = null) {
+    protected function urlHasCampaign($url = null)
+    {
         $url = $url ?? request()->url();
-        return count(array_filter($this->captureCampaign())) > 1 ? true : false;
+        return count(array_filter($this->captureCampaign())) > 1;
     }
 
     /**
@@ -72,23 +89,23 @@ trait CommonTrait
         return array_map(fn($key) => config('trails.campaign_prefix') . $key, array_keys(config('trails.campaign_parameters')));
     }
 
-
     /**
      * Get columns of Visit model that start with "utm_".
      *
-     * @return array
+     * This method retrieves the columns of the Visit model that start with the campaign prefix.
+     *
+     * @return array An array of column names that start with the campaign prefix.
      */
     protected function campaignColumns()
     {
         $table = (new Visit)->getTable();
         $columns = Schema::getColumnListing($table);
 
-        // Filter columns that start with campaign_prefix
+        // Filter columns that start with the campaign prefix
         $campaignColumns = array_filter($columns, function ($column) {
             return strpos($column, config('trails.campaign_prefix')) === 0;
         });
 
         return array_values($campaignColumns);
     }
-
 }
