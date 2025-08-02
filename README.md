@@ -8,7 +8,7 @@
 [![Build Status][ico-travis]][link-travis]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-Trails is a simple registration attribution tracking solution for Laravel 7+ and Laravel 9.
+Trails is a simple registration attribution tracking solution for Laravel 7+, Laravel 9.x and Laravel 10.x.
 
 > “I know I waste half of my advertising dollars...I just wish I knew which half.” ~ *Henry Procter*.
 
