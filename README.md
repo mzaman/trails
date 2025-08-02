@@ -1,3 +1,4 @@
+
 # :feet: Trails for (UTM and Referrer Tracking)
 
 ![Trails for Laravel (UTM and Referrer Tracking)](readme-header.jpg)
@@ -7,8 +8,7 @@
 [![Build Status][ico-travis]][link-travis]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-
-Trails is a simple registration attribution tracking solution for Laravel 7+
+Trails is a simple registration attribution tracking solution for Laravel 7+ and Laravel 9.
 
 > “I know I waste half of my advertising dollars...I just wish I knew which half.” ~ *Henry Procter*.
 
@@ -20,31 +20,31 @@ Trails makes it easy to look back and see what lead to a user signing up.
 
 Via Composer
 
-``` bash
+```bash
 composer require mzaman/trails
 ```
 
 Publish the config and migration files:
 
-``` php
+```php
 php artisan vendor:publish --provider="MasudZaman\Trails\TrailsServiceProvider"
 ```
 
 Add the `\MasudZaman\Trails\Middleware\CaptureAttributionDataMiddleware::class` either to a group of routes that should be tracked or as a global middleware in `App\Http\Kernel.php` (after the `EncryptCookie` middleware!) like so:
 
 ```php
-    /**
-     * The application's global HTTP middleware stack.
-     *
-     * These middleware are run during every request to your application.
-     *
-     * @var array
-     */
-    protected $middleware = [
-        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
-        \App\Http\Middleware\EncryptCookies::class,
-        \MasudZaman\Trails\Middleware\CaptureAttributionDataMiddleware::class, // <-- Added
-    ];
+/**
+ * The application's global HTTP middleware stack.
+ *
+ * These middleware are run during every request to your application.
+ *
+ * @var array
+ */
+protected $middleware = [
+    \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+    \App\Http\Middleware\EncryptCookies::class,
+    \MasudZaman\Trails\Middleware\CaptureAttributionDataMiddleware::class, // <-- Add
+];
 ```
 
 Add tracking to the model where registration should be tracked (usually the Eloquent model `\App\Models\User`) by implementing the `TrackableInterface` and using the `TrackRegistrationAttribution` trait like so:
@@ -57,10 +57,10 @@ use Illuminate\Database\Eloquent\Model;
 use MasudZaman\Trails\TrackableInterface;
 use MasudZaman\Trails\TrackRegistrationAttribution;
 
-class User extends Model implements TrackableInterface // <-- Added
+class User extends Model implements TrackableInterface // <-- Add
 {
     use Authenticatable;
-    use TrackRegistrationAttribution; // <-- Added 
+    use TrackRegistrationAttribution; // <-- Add 
 
     /**
      * The database table used by the model.
@@ -68,7 +68,6 @@ class User extends Model implements TrackableInterface // <-- Added
      * @var string
      */
     protected $table = 'users';
-
 }
 ```
 
@@ -78,55 +77,55 @@ Go over the configuration file, most notably the model you wish to track:
 
 connection name (optional - if you need a separated tracking database):
 
-``` php
+```php
 'connection_name' => 'mytrackingdbconnection'
 ```
 
 model name:
 
-``` php
+```php
 'model' => 'App\Models\User'
 ```
 
 authentication guard:
 
-``` php
+```php
 'guard' => 'web'
 ```
 
 the column name:
 
-``` php
+```php
 'model_column_name' => 'user_id'
 ```
 
 and attribution duration (in seconds)
 
-``` php
+```php
 'attribution_duration' => 2628000
 ```
 
 also you can define some route what you don't want to track:
 
-``` php
+```php
 'landing_page_blacklist' => ['genealabs/laravel-caffeine/drip', 'admin']
 ```
 
 if you want to use on multiple subdomain with a wildcard cookie, you can set your custom domain name:
 
-``` php
+```php
 'cookie_domain' => .yourdomain.com
 ```
 
 this boolean will allow you to write the tracking data to the db in your queue (optional):
 
-``` php
+```php
 'async' => true
 ```
 
 tracking in cases where cookies are disabled can be achieved by disabling the setting:
 
-``` php
+```php
 'uniqueness' => false
 ```
 
@@ -135,7 +134,7 @@ tracking in cases where cookies are disabled can be achieved by disabling the se
 
 #### How does Trails work?
 
-Trails tracks the UTM parameters and HTTP refererers from all requests to your application that are sent by un-authenticated users. Not sure what UTM parameters are? [Wikipedia](https://en.wikipedia.org/wiki/UTM_parameters) has you covered:
+Trails tracks the UTM parameters and HTTP referers from all requests to your application that are sent by un-authenticated users. Not sure what UTM parameters are? [Wikipedia](https://en.wikipedia.org/wiki/UTM_parameters) has you covered:
 
 > UTM parameters (UTM) is a shortcut for Urchin Traffic Monitor. This text tags allow users to track and analyze traffic sources in analytical tools (f.e. Google Analytics). By adding UTM parameters to URLs, you can identify the source and campaigns that send traffic to your website. When a user clicks a referral link / ad or banner, these parameters are sent to Google Analytics (or other analytical tool), so you can see the effectiveness of each campaign in your reports
 
@@ -179,19 +178,19 @@ The default configuration tracks the most relevant information
 But the package also makes it easy to the users ip address or basically any information available from the request object.  
 
 ##### Get all of a user's visits before registering.
-``` php
+```php
 $user = User::find(1);
 $user->visits;
 ```
 
 ##### Get the attribution data of a user's initial visit before registering.
-``` php
+```php
 $user = User::find(1);
 $user->initialAttributionData();
 ```
 
 ##### Get the attribution data of a user's final visit before registering.
-``` php
+```php
 $user = User::find(1);
 $user->finalAttributionData();
 ```
@@ -206,7 +205,7 @@ Whenever an incoming request passes through the `CaptureAttributionDataMiddlewar
 
 The `TrackingLogger` is responsible for logging relevant information about the request as a `Vist` record. The most important parameter is the request's "trail" which is the entity that *should* be the same for multiple requests performed by the same user and hence this is what is used to link different requests.
 
-Calculating the trail is done with a request macro which in turn uses a `Trailer` singleton (can be changed to any class implementing `TrailerInterface`). It will look for the presence of a `trails` cookie (configurable) and use that if it exists. If the cookie does not exist then it will create it so that it can be tracked on subsequent requests. It might be desireable for some to implement a custom logic for this but note that it is important that the calculation is a *pure function* meaning that calling this method multiple times with the same request as input should always yield the same result.
+Calculating the trail is done with a request macro which in turn uses a `Trailer` singleton (can be changed to any class implementing `TrailerInterface`). It will look for the presence of a `trails` cookie (configurable) and use that if it exists. If the cookie does not exist then it will create it so that it can be tracked on subsequent requests. It might be desireable for some to implement a custom logic for this but note that it is important that the calculation is a *pure function* meaning that calli...
 
 At some point the user signs up (or *any* trackable model is created) which fires the job `AssignPreviousVisits`. This job calculates the trail of the request and looks for any existing logged `Visit` records and link those to the new user.  
 
@@ -251,25 +250,23 @@ Version 3.x of this package contains a few breaking changes that must be address
 
 ## Change log
 
-Please see the commit history for more information what has changed recently.
+Please see the commit history for more information on what has changed recently.
 
 ## Testing
 
 Haven't got round to this yet - PR's welcome ;)
 
-``` bash
+```bash
 $ composer test
 ```
 
 ## Contributing
 
-If you run into any issues, have suggestions or would like to expand this packages functionality, please open an issue or a pull request :)
+If you run into any issues, have suggestions or would like to expand this package's functionality, please open an issue or a pull request :)
 
 ## Thanks
 
 Thanks to ZenCast, some of the [best Podcast Hosting](https://zencast.fm?ref=trails-github) around.
-
-
 
 ## License
 
@@ -284,4 +281,5 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 [link-travis]: https://travis-ci.org/mzaman/trails
 [link-downloads]: https://packagist.org/packages/mzaman/trails
 [link-author]: https://github.com/kyranb
+[link-author]: https://github.com/mzaman
 [link-contributors]: ../../contributors

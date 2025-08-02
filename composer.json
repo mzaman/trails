@@ -1,6 +1,7 @@
 {
     "name": "mzaman/trails",
     "type": "library",
+    "version": "1.0.0",
     "description": "A simple registration attribution tracking solution for Laravel (UTM Parameters and Referrers)",
     "keywords": [
         "trails",
@@ -24,7 +25,7 @@
     },
     "require-dev": {
         "orchestra/testbench": "^6.0",
-        "phpunit/phpunit": "^9.0",
+        "phpunit/phpunit": "^9.5",
         "friendsofphp/php-cs-fixer": "^2.15"
     },
     "suggest": {
