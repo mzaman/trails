@@ -19,7 +19,7 @@ class TrackVisit implements ShouldQueue
         $this->trackableId = $trackableId;
     }
 
-    public function handle()
+    public function handle(): void
     {
         Visit::create(array_merge([
             config('trails.column_name') => $this->trackableId,

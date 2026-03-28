@@ -26,10 +26,12 @@ class PruneCommand extends Command
      *
      * @return void
      */
-    public function handle()
+    public function handle(): int
     {
         $days = $this->option('days') ?? config('trails.attribution_duration') / (60 * 60 * 24);
 
-        return Visit::prunable($days)->delete();
+        Visit::prunable($days)->delete();
+
+        return self::SUCCESS;
     }
 }

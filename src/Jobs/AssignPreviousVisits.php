@@ -26,7 +26,7 @@ class AssignPreviousVisits implements ShouldQueue
         // \Log::info(['AssignPreviousVisits', $trackable]);
     }
 
-    public function handle()
+    public function handle(): void
     {
         Visit::unassignedPreviousVisits($this->trail)->update(
             [
