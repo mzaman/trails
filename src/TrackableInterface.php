@@ -4,6 +4,9 @@ namespace MasudZaman\Trails;
 
 use Illuminate\Http\Request;
 
+/**
+ * @property int|string $id
+ */
 interface TrackableInterface
 {
     /**
